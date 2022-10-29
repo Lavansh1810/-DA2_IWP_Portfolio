@@ -59,12 +59,28 @@
           <li class="nav-item">
             <a class="nav-link js-scroll ml-2" href="#contact">Contact</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll ml-2" href="login.php">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll ml-2" href="register.php">Register</a>
-          </li>
+          <?php
+
+            if(isset($_COOKIE["PHPSESSID"]))
+            {
+            echo "<li class='nav-item'>
+            <a class='nav-link js-scroll ml-2' href='mail.php'>Send Mail</a>
+            </li>
+            <li class='nav-item'>
+            <a class='nav-link js-scroll ml-2' href='logout.php'>Logout</a>
+            </li>";
+            }
+            else
+            {
+            echo "<li class='nav-item'>
+            <a class='nav-link js-scroll ml-2' href='login.php'>Login</a>
+            </li>
+            <li class='nav-item'>
+            <a class='nav-link js-scroll ml-2' href='register.php'>Register</a>
+            </li>";
+            }
+
+          ?>
         </ul>
       </div>
     </div>
@@ -90,20 +106,73 @@
   </div>
   <!--/ Intro Skew End /-->
   
-    <?php 
-        if (isset($_POST["submit"])) {
+  <?php 
 
+        
+
+        if (isset($_POST["submit"])) {
             
+          $user = $_POST["username"];
+          $pass = $_POST["password"];
+          
+          $servername = "localhost"; 
+          $username = "root"; 
+          $password = "root"; 
+          $database = "my_site";
+          $conn = mysqli_connect($servername, $username, $password, $database); 
+          
+          $sql = "select * from `person_details` where username='$user' and pass1='$pass' "; 
+          
+          $result = mysqli_query($conn, $sql);
+
+          $count=mysqli_num_rows($result);
+
+          foreach($result as $k) {  
+            $name = $k['name'];
+          }  
+          
+
+          if($count>0)
+          {
+	          session_start();
+            $_SESSION['userid'] = $user;
+            $cookie_name = $user;
+            date_default_timezone_set('Asia/Kolkata');
+            $date = date('d-m-y--h-i-s');
+            $cookie_value = $date;
+            setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/");
+            
+            if(!isset($_COOKIE[$cookie_name])) {
+              echo "Cookie named '" . $cookie_name . "' is not set!";
+            } else {
+              
+              echo "<div class='alert alert-success alert-dismissible fade show ' style='margin-top:20px;'role='alert'>
+              <h3>Cookie '" . $cookie_name . "' is set!<br></h3> <strong> Start time is: "  . $_COOKIE[$cookie_name] . "</strong>
+                  <button type='button' class='close' data-dismiss='alert' aria-label='Close'>
+                  <span aria-hidden='true'>&times;</span>
+              </button>
+              </div>";
+            }
+
             echo "<div class='alert alert-success alert-dismissible fade show ' style='margin-top:20px;'role='alert'>
-            <h3>Hello Admin!</h3> <strong> </string>You have logged in successfully.</storng>
+            <h3>Hello $name ..!</h3> <strong> </string>You have logged in successfully.</storng>
                 <button type='button' class='close' data-dismiss='alert' aria-label='Close'>
                 <span aria-hidden='true'>&times;</span>
             </button>
-            </div>";        
+            </div>";      
+          }
+          else
+          {
+            $Message = urlencode("Invalid Credentials..Try Again");
+            header('Location: /DA2/login.php?Message=".$Message');
+            die;
+          }
 
             
         }
     ?>
+
+
 
   <section id="about" class="about-mf sect-pt4 route">
     <div class="container">

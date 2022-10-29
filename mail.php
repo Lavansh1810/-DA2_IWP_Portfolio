@@ -1,7 +1,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Lavansh Arora</title>
+        <title>Send Mail with Attachment</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -26,6 +26,75 @@
 
     </head>
     <body>
+        
+        <?php
+
+            if(isset($_POST['button']) && isset($_FILES['attachment']))
+            {
+                $from_email		 = 'lavansh@abc.com'; 
+                $recipient_email = 'recipient@xyz.com'; 
+                
+                
+                $sender_name = $_POST["sender_name"]; 
+                $reply_to_email = $_POST["sender_email"]; 
+                $subject	 = $_POST["subject"]; 
+                $message	 = $_POST["message"]; 
+
+                
+                $tmp_name = $_FILES['attachment']['tmp_name']; 
+                $name	 = $_FILES['attachment']['name']; 
+                $size	 = $_FILES['attachment']['size']; 
+                $type	 = $_FILES['attachment']['type']; 
+                $error	 = $_FILES['attachment']['error']; 
+
+                
+                if($error > 0)
+                {
+                    die('Upload error or No files uploaded');
+                }
+
+                
+                $handle = fopen($tmp_name, "r"); 
+                $content = fread($handle, $size); 
+                fclose($handle);				 
+
+                $encoded_content = chunk_split(base64_encode($content));
+                $boundary = md5("random"); 
+
+                //header
+                $headers = "MIME-Version: 1.0\r\n"; 
+                $headers .= "From:".$from_email."\r\n"; 
+                $headers .= "Reply-To: ".$reply_to_email."\r\n";
+                $headers .= "Content-Type: multipart/mixed;"; 
+                $headers .= "boundary = $boundary\r\n";
+                    
+                
+                $body = "--$boundary\r\n";
+                $body .= "Content-Type: text/plain; charset=ISO-8859-1\r\n";
+                $body .= "Content-Transfer-Encoding: base64\r\n\r\n";
+                $body .= chunk_split(base64_encode($message));
+                    
+                
+                $body .= "--$boundary\r\n";
+                $body .="Content-Type: $type; name=".$name."\r\n";
+                $body .="Content-Disposition: attachment; filename=".$name."\r\n";
+                $body .="Content-Transfer-Encoding: base64\r\n";
+                $body .="X-Attachment-Id: ".rand(1000, 99999)."\r\n\r\n";
+                $body .= $encoded_content; 
+                
+                $sentMailResult = mail($recipient_email, $subject, $body, $headers);
+
+                if($sentMailResult )
+                {
+                echo "<h3>File Sent Successfully.<h3>";
+                }
+                else
+                {
+                die("Sorry but the email could not be sent.
+                                Please go back and try again!");
+                }
+            }
+        ?>
 
         <nav class="navbar navbar-b navbar-trans navbar-expand-md fixed-top" id="mainNav">
             <div class="container">
@@ -69,6 +138,7 @@
             </div>
         </nav>
 
+        
 
 
         
@@ -93,87 +163,40 @@
                         <div class="col-md-6">
 
 
-                        <?php 
-
-                            if(isset($_GET['Message'])){
-                                echo "<div class='alert alert-danger alert-dismissible fade show m-20' role='alert'>
-                                <strong>Hello User..! </strong> Invalid Credentials..Please try Again
-                                    <button type='button' class='close' data-dismiss='alert' aria-label='Close'>
-                                    <span aria-hidden='true'>&times;</span>
-                                </button>
-                                </div>";   
-                            }
-
-                            if (isset($_POST["submit"])) {
-                                $name = $_POST["name"];
-                                $phone = $_POST["phone"];
-                                $usernam = $_POST["username"];
-                                $email = $_POST["email"];
-                                $pass1 = $_POST["password"];
-                                $pass2 = $_POST["passwordCon"];
-
-                               
-                                
-                                
-                                $servername = "localhost"; 
-                                $username = "root"; 
-                                $password = "root"; 
-                                $database = "my_site";
-                                $conn = mysqli_connect($servername, $username, $password, $database); 
-                                
-                                $sql = "INSERT INTO `person_details` (`name`, `phone`,`username`,`email`,`pass1`,`pass2`) VALUES ('$name', '$phone','$usernam','$email','$pass1','$pass2')"; 
-                                $result = mysqli_query($conn, $sql);
-                                
-                                if($result){
-                                    echo "<div class='alert alert-success alert-dismissible fade show m-20' role='alert'>
-                                    <strong>Hello ". $name . "!</strong> You have signed up successfully and can Login Now.
-                                        <button type='button' class='close' data-dismiss='alert' aria-label='Close'>
-                                        <span aria-hidden='true'>&times;</span>
-                                    </button>
-                                    </div>";   
-                                } else{ 
-                                    echo "<div class='alert alert-danger alert-dismissible fade show m-20' role='alert'>
-                                    <strong>Hello ". $name . "!</strong> The record was not inserted successfully because of this error ---> ". mysqli_error($conn)."
-                                        <button type='button' class='close' data-dismiss='alert' aria-label='Close'>
-                                        <span aria-hidden='true'>&times;</span>
-                                    </button>
-                                    </div>";   
-                                } 
-                            }
-                        ?>
-
+                        
                         
 
                         <div class="title-box-2">
                             <h5 class="title-left">
-                                Login
+                                Send Mail with Attachment
                             </h5>
                         </div>
                         <div>
 
 
 
-                            <form name="myForm" action="index.php" class="contactForm" method="post" onsubmit="return validateform()">
-
-                                <div class="row" id="login_form">
-
-                                    <div class="col-md-12 mb-3">
-                                        <div class="form-group">
-                                            <input type="text" name="username" value="" class="form-control" id="username" placeholder="Username"  />
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-12 mb-3">
-                                        <div class="form-group">
-                                            <input class="form-control" name="password" id="password" type="password"  placeholder="Password">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <button  name="submit" class="button button-a button-big button-rouded" >Login</button>
-                                        <input type="button" onclick="myReset()" class="button button-a button-big button-rouded" value="Reset">
-                                    </div>
+                        <div style="display:flex; justify-content: center; margin-top:10%;">
+                            <form enctype="multipart/form-data" method="POST" action="" style="width: 500px;">
+                                <div class="form-group">
+                                    <input class="form-control" type="text" name="sender_name" placeholder="Your Name" required/>
                                 </div>
+                                <div class="form-group">
+                                    <input class="form-control" type="email" name="sender_email" placeholder="Recipient's Email Address" required/>
+                                </div>
+                                <div class="form-group">
+                                    <input class="form-control" type="text" name="subject" placeholder="Subject"/>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" name="message" placeholder="Message"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <input class="form-control" type="file" name="attachment" placeholder="Attachment" required/>
+                                </div>
+                                <div class="form-group">
+                                    <input class="button button-a button-big button-rouded" type="submit" name="button" value="Submit" />
+                                </div>           
                             </form>
+                        </div>
 
                         </div>
                         </div>
@@ -294,7 +317,14 @@
                     alert("Password can't be blank");
                     return false;
                 }
-                
+                else if (name.localeCompare("admin")!=0){
+                    alert("Invalid Admin Credentials");
+                    return false;
+                }
+                else if(password.localeCompare("admin@123")!=0){
+                    alert("Invalid Admin Credentials");
+                    return false;
+                }
 
             }
 

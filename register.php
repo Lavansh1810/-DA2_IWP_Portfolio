@@ -41,12 +41,28 @@
                 <li class="nav-item">
                     <a class="nav-link ml-2" href="index.php">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link  ml-2" href="login.php">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active ml-2" href="register.php">Register</a>
-                </li>
+                <?php
+
+                    if(isset($_COOKIE["PHPSESSID"]))
+                    {
+                    echo "<li class='nav-item'>
+                    <a class='nav-link js-scroll ml-2' href='mail.php'>Send Mail</a>
+                    </li>
+                    <li class='nav-item'>
+                    <a class='nav-link js-scroll ml-2' href='logout.php'>Logout</a>
+                    </li>";
+                    }
+                    else
+                    {
+                    echo "<li class='nav-item'>
+                    <a class='nav-link js-scroll ml-2' href='login.php'>Login</a>
+                    </li>
+                    <li class='nav-item'>
+                    <a class='nav-link js-scroll ml-2' href='register.php'>Register</a>
+                    </li>";
+                    }
+
+                ?>
                 </ul>
             </div>
             </div>
